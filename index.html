@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SE7EN | ALOY ELITE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;600;800&display=swap');
+
+        :root {
+            --bg: #000000;
+            --surface: #121212;
+            --accent: #1ed760;
+            --text: #ffffff;
+            --text-dim: #b3b3b3;
+            --sidebar-w: 240px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Figtree', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+
+        .viewport { flex: 1; padding-bottom: 180px; width: 100%; max-width: 1400px; margin: 0 auto; }
+
+        /* NAVIGATION */
+        .bottom-nav {
+            position: fixed; bottom: 0; width: 100%; background: #000;
+            display: flex; justify-content: space-around; padding: 12px 0 25px; z-index: 1000;
+            border-top: 1px solid #1a1a1a;
+        }
+        .nav-link { display: flex; flex-direction: column; align-items: center; color: var(--text-dim); font-size: 11px; gap: 5px; cursor: pointer; transition: 0.3s; }
+        .nav-link.active, .nav-link:hover { color: white; }
+        .nav-link i { font-size: 22px; }
+
+        /* TOP NAV */
+        .top-nav { position: sticky; top: 0; padding: 20px 16px; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); z-index: 900; }
+        .top-nav h1 { font-size: 24px; font-weight: 800; margin-bottom: 15px; }
+        .search-container { position: relative; margin-bottom: 15px; max-width: 500px; }
+        .search-container i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-dim); }
+        .search-container input { width: 100%; padding: 12px 45px; border-radius: 25px; border: none; background: #222; color: white; font-size: 14px; outline: none; transition: 0.3s; }
+        .search-container input:focus { background: #333; box-shadow: 0 0 0 2px var(--accent); }
+
+        .chip-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .chip { padding: 8px 18px; background: #282828; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+        .chip.active { background: white; color: black; }
+
+        /* GRID SYSTEM */
+        .section { padding: 25px 16px 0; }
+        .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .see-all { font-size: 13px; color: var(--text-dim); font-weight: 700; cursor: pointer; }
+        .music-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .card { background: #181818; padding: 12px; border-radius: 12px; transition: 0.3s; cursor: pointer; }
+        .card:hover { background: #282828; transform: translateY(-5px); }
+        .card img { width: 100%; aspect-ratio: 1/1; border-radius: 8px; object-fit: cover; margin-bottom: 10px; }
+        .card h3 { font-size: 14px; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+        .card p { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+
+        /* MINI PLAYER */
+        .player { position: fixed; bottom: 85px; left: 10px; right: 10px; background: #282828; border-radius: 10px; padding: 10px 15px; z-index: 1500; cursor: pointer; }
+        .player-content { display: flex; align-items: center; justify-content: space-between; }
+        .track-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+        .track-info img { width: 45px; height: 45px; border-radius: 6px; }
+        .track-text { overflow: hidden; }
+        .track-text h4 { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-text p { font-size: 11px; color: var(--text-dim); }
+        .play-pause { width: 38px; height: 38px; background: white; color: black; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .progress-container { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 5px; margin-top: 10px; cursor: pointer; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: 0.1s linear; }
+
+        /* FULL OVERLAY */
+        .player-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #333, #000); z-index: 3000; display: flex; flex-direction: column; padding: 50px 30px; transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.3, 0, 0.2, 1); }
+        .player-overlay.active { transform: translateY(0); }
+        .overlay-header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .overlay-art { width: 100%; aspect-ratio: 1/1; border-radius: 15px; object-fit: cover; margin-bottom: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .controls-big { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; }
+        .play-btn-big { width: 70px; height: 70px; background: white; color: black; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+
+        @media (min-width: 1024px) {
+            body { flex-direction: row; }
+            .bottom-nav { width: var(--sidebar-w); height: 100vh; position: sticky; flex-direction: column; justify-content: flex-start; padding: 40px 20px; border-right: 1px solid #1a1a1a; border-top: none; }
+            .nav-link { flex-direction: row; font-size: 16px; padding: 12px; width: 100%; border-radius: 8px; gap: 15px; }
+            .viewport { padding: 0 40px 120px; flex: 1; }
+            .music-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 25px; }
+            .player { left: calc(var(--sidebar-w) + 20px); right: 20px; bottom: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="bottom-nav">
+    <div class="nav-link active"><i class="fa-solid fa-house"></i> Home</div>
+    <div class="nav-link" onclick="document.getElementById('q').focus()"><i class="fa-solid fa-magnifying-glass"></i> Search</div>
+    <div class="nav-link"><i class="fa-solid fa-layer-group"></i> Library</div>
+</nav>
+
+<div class="viewport">
+    <div class="top-nav">
+        <h1>Welcome!, Aloy🤘</h1>
+        <div class="search-container">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="q" placeholder="Search songs..." onkeypress="if(event.key==='Enter') fetchMusic(this.value)">
+        </div>
+        <div class="chip-row">
+            <div class="chip active" onclick="selectChip(this, 'Trending OPM 2026')">Trending</div>
+            <div class="chip" onclick="selectChip(this, 'Rock Classics')">Rock</div>
+            <div class="chip" onclick="selectChip(this, 'Chill HipHop')">HipHop</div>
+            <div class="chip" onclick="selectChip(this, '80s 90s Hits')">Classic</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-head">
+            <h2>Made For You</h2>
+            <div class="see-all" id="btn-grid" onclick="toggleView('grid')">See All</div>
+        </div>
+        <div id="grid" class="music-grid"></div>
+    </div>
+
+    <div class="section">
+        <div class="section-head">
+            <h2>Recommended Podcasts</h2>
+            <div class="see-all" id="btn-podcast-grid" onclick="toggleView('podcast-grid')">See All</div>
+        </div>
+        <div id="podcast-grid" class="music-grid"></div>
+    </div>
+
+    <footer style="padding: 60px 20px 100px; text-align: center; border-top: 1px solid #1a1a1a; margin-top: 50px;">
+        <div style="font-size: 24px; font-weight: 900; color: var(--accent); letter-spacing: 5px; margin-bottom: 10px;">SE7EN</div>
+        <div style="font-size: 10px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase;">Est. 2026 • Premier Sound Experience</div>
+        <p style="font-size: 11px; color: #444; margin-top: 15px;">Crafted for the Elite Music Lovers</p>
+    </footer>
+</div>
+
+<div class="player" onclick="openFullPlayer()">
+    <div class="player-content">
+        <div class="track-info">
+            <img id="cur-thumb" src="https://ui-avatars.com/api/?name=S&background=1DB954&color=fff">
+            <div class="track-text">
+                <h4 id="cur-title">No music selected</h4>
+                <p id="cur-artist">Tap a song to play</p>
+            </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div class="play-pause" onclick="event.stopPropagation(); togglePlay()">
+                <i class="fa-solid fa-play" id="pp-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="progress-container" onclick="event.stopPropagation(); seek(event, this)">
+        <div class="progress-fill" id="p-bar"></div>
+    </div>
+</div>
+
+<div class="player-overlay" id="fullPlayer">
+    <div class="overlay-header">
+        <i class="fa-solid fa-chevron-down" onclick="closeFullPlayer()" style="font-size: 24px;"></i>
+        <span style="font-weight: 800; font-size: 12px;">NOW PLAYING</span>
+        <i class="fa-solid fa-ellipsis-vertical" style="font-size: 24px;"></i>
+    </div>
+    <img id="full-art" class="overlay-art" src="">
+    <div class="overlay-info">
+        <h2 id="full-title">Song Title</h2>
+        <p id="full-artist">Artist Name</p>
+    </div>
+    <div class="progress-container" style="height: 6px; margin-top: 40px;" onclick="seek(event, this)">
+        <div class="progress-fill" id="p-bar-full" style="background: white;"></div>
+    </div>
+    <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; font-weight: 600; color: var(--text-dim);">
+        <span id="time-cur">0:00</span>
+        <span id="time-total">0:00</span>
+    </div>
+    <div class="controls-big">
+        <i class="fa-solid fa-shuffle" style="color: var(--accent);"></i>
+        <i class="fa-solid fa-backward-step" onclick="playPrev()"></i>
+        <div class="play-btn-big" onclick="togglePlay()"><i class="fa-solid fa-play" id="pp-icon-full"></i></div>
+        <i class="fa-solid fa-forward-step" onclick="playNext()"></i>
+        <i class="fa-solid fa-repeat"></i>
+    </div>
+</div>
+
+<div id="yt-engine" style="display:none;"></div>
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+    let p;
+    let musicData = { grid: [], 'podcast-grid': [] };
+    let showingAll = { grid: false, 'podcast-grid': false };
+    let currentIdx = 0;
+    let currentList = 'grid';
+
+    const RAPID_KEY = '4e8edee1c8mshc6c52eb315c1a04p1ec8b0jsn992eddb8a559';
+    const RAPID_HOST = 'youtube-data-api-v33.p.rapidapi.com';
+
+    async function selectChip(el, q) {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        fetchMusic(q);
+    }
+
+    async function fetchMusic(query) {
+        try {
+            const res = await fetch(`https://${RAPID_HOST}/search?q=${encodeURIComponent(query)}&part=snippet&type=video&maxResults=10`, {
+                headers: { 'x-rapidapi-key': RAPID_KEY, 'x-rapidapi-host': RAPID_HOST }
+            });
+            const data = await res.json();
+            musicData.grid = data.items || [];
+            render('grid');
+        } catch (e) {}
+    }
+
+    async function fetchPodcasts() {
+        try {
+            const res = await fetch(`https://${RAPID_HOST}/search?q=Latest%20Podcast%20Episodes&part=snippet&type=video&maxResults=10`, {
+                headers: { 'x-rapidapi-key': RAPID_KEY, 'x-rapidapi-host': RAPID_HOST }
+            });
+            const data = await res.json();
+            musicData['podcast-grid'] = data.items || [];
+            render('podcast-grid');
+        } catch (e) {}
+    }
+
+    function render(targetId) {
+        const target = document.getElementById(targetId);
+        const btn = document.getElementById('btn-' + targetId);
+        const items = showingAll[targetId] ? musicData[targetId] : musicData[targetId].slice(0, 5);
+        btn.innerText = showingAll[targetId] ? "Show Less" : "See All";
+        target.innerHTML = items.map((item, idx) => `
+            <div class="card" onclick="playTrack('${item.id.videoId}', '${item.snippet.title.replace(/'/g, "")}', '${item.snippet.thumbnails.high.url}', '${item.snippet.channelTitle.replace(/'/g, "")}', ${idx}, '${targetId}')">
+                <img src="${item.snippet.thumbnails.high.url}">
+                <h3>${item.snippet.title}</h3>
+                <p>${item.snippet.channelTitle}</p>
+            </div>
+        `).join('');
+    }
+
+    function toggleView(id) { showingAll[id] = !showingAll[id]; render(id); }
+    function openFullPlayer() { document.getElementById('fullPlayer').classList.add('active'); }
+    function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('active'); }
+
+    function onYouTubeIframeAPIReady() {
+        p = new YT.Player('yt-engine', {
+            events: {
+                'onStateChange': (e) => {
+                    const icon = (e.data == 1) ? "fa-solid fa-pause" : "fa-solid fa-play";
+                    document.getElementById('pp-icon').className = icon;
+                    document.getElementById('pp-icon-full').className = icon;
+                    if(e.data == 0) playNext();
+                    if(e.data == 1) {
+                        updateBar();
+                        let total = p.getDuration();
+                        let m = Math.floor(total/60), s = Math.floor(total%60);
+                        document.getElementById('time-total').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+                    }
+                }
+            }
+        });
+    }
+
+    function playTrack(id, title, thumb, artist, idx, listId) {
+        currentIdx = idx; currentList = listId;
+        document.getElementById('cur-thumb').src = thumb;
+        document.getElementById('cur-title').innerText = title;
+        document.getElementById('cur-artist').innerText = artist;
+        document.getElementById('full-art').src = thumb;
+        document.getElementById('full-title').innerText = title;
+        document.getElementById('full-artist').innerText = artist;
+        p.loadVideoById(id);
+    }
+
+    function playNext() {
+        let list = musicData[currentList];
+        if(currentIdx < list.length - 1) {
+            let next = list[currentIdx + 1];
+            playTrack(next.id.videoId, next.snippet.title, next.snippet.thumbnails.high.url, next.snippet.channelTitle, currentIdx + 1, currentList);
+        }
+    }
+
+    function playPrev() {
+        if(currentIdx > 0) {
+            let prev = musicData[currentList][currentIdx - 1];
+            playTrack(prev.id.videoId, prev.snippet.title, prev.snippet.thumbnails.high.url, prev.snippet.channelTitle, currentIdx - 1, currentList);
+        }
+    }
+
+    function togglePlay() { 
+        if(!p) return;
+        p.getPlayerState() == 1 ? p.pauseVideo() : p.playVideo(); 
+    }
+    
+    function seek(e, el) {
+        const rect = el.getBoundingClientRect();
+        const perc = (e.clientX - rect.left) / rect.width;
+        p.seekTo(perc * p.getDuration());
+    }
+
+    function updateBar() {
+        const timer = setInterval(() => {
+            if(p && p.getCurrentTime && p.getPlayerState() == 1) {
+                const cur = p.getCurrentTime();
+                const dur = p.getDuration();
+                const perc = (cur / dur) * 100;
+                document.getElementById('p-bar').style.width = perc + "%";
+                document.getElementById('p-bar-full').style.width = perc + "%";
+                let m = Math.floor(cur/60), s = Math.floor(cur%60);
+                document.getElementById('time-cur').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+            } else if (p && p.getPlayerState() != 1) {
+                clearInterval(timer);
+            }
+        }, 1000);
+    }
+
+    window.onload = () => { fetchMusic('OPM Trending 2026'); fetchPodcasts(); };
+</script>
+</body>
+</html>
