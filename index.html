@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SE7EN | ALOY ELITE</title>
-    
+
     <meta property="og:title" content="SE7EN | ALOY ELITE">
     <meta property="og:description" content="The Premier Sound Experience. Crafted for Elite Music Lovers.">
-    <meta property="og:image" content="https://ui-avatars.com/api/?name=SE7EN&background=1DB954&color=fff&size=512">
+    <meta property="og:image" content="https://ui-avatars.com/api/?name=SE7EN&background=ff4500&color=fff&size=512">
     <meta property="og:url" content="https://seven25.click/My_music/">
-    <meta name="theme-color" content="#1ed760">
+    <meta name="theme-color" content="#ff4500">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -18,7 +18,9 @@
         :root {
             --bg: #000000;
             --surface: #121212;
-            --accent: #1ed760;
+            --surface-2: #1c1c1c;
+            --accent: #ff4500;
+            --accent-2: #ff6a2a;
             --text: #ffffff;
             --text-dim: #b3b3b3;
             --sidebar-w: 240px;
@@ -39,12 +41,12 @@
             display: flex; justify-content: space-around; padding: 12px 0 25px; z-index: 1000;
             border-top: 1px solid #1a1a1a;
         }
-        .nav-link { display: flex; flex-direction: column; align-items: center; color: var(--text-dim); font-size: 11px; gap: 5px; cursor: pointer; transition: 0.3s; }
-        .nav-link.active, .nav-link:hover { color: white; }
+        .nav-link { display: flex; flex-direction: column; align-items: center; color: var(--text-dim); font-size: 11px; gap: 5px; cursor: pointer; transition: 0.3s; background: none; border: none; }
+        .nav-link.active, .nav-link:hover, .nav-link:focus-visible { color: white; outline: none; }
         .nav-link i { font-size: 22px; }
 
         /* TOP NAV */
-        .top-nav { position: sticky; top: 0; padding: 20px 16px; background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); z-index: 900; }
+        .top-nav { position: sticky; top: 0; padding: 20px 16px; background: rgba(0,0,0,0.85); backdrop-filter: blur(20px); z-index: 900; }
         .top-nav h1 { font-size: 24px; font-weight: 800; line-height: 1.2; }
         .search-container { position: relative; margin: 15px 0; max-width: 500px; }
         .search-container i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-dim); }
@@ -52,25 +54,31 @@
         .search-container input:focus { background: #333; box-shadow: 0 0 0 2px var(--accent); }
 
         .chip-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
-        .chip { padding: 8px 18px; background: #282828; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
+        .chip { padding: 8px 18px; background: #282828; border: none; color: var(--text); border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; cursor: pointer; }
         .chip.active { background: white; color: black; }
+        .chip:focus-visible { outline: 2px solid var(--accent); }
 
         /* GRID SYSTEM */
         .section { padding: 25px 16px 0; }
         .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .see-all { font-size: 13px; color: var(--text-dim); font-weight: 700; cursor: pointer; }
+        .see-all { font-size: 13px; color: var(--text-dim); font-weight: 700; cursor: pointer; background: none; border: none; }
+        .see-all:hover { color: var(--text); }
         .music-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .card { background: #181818; padding: 12px; border-radius: 12px; transition: 0.3s; cursor: pointer; }
-        .card:hover { background: #282828; transform: translateY(-5px); }
-        .card img { width: 100%; aspect-ratio: 1/1; border-radius: 8px; object-fit: cover; margin-bottom: 10px; }
+        .card { background: #181818; padding: 12px; border-radius: 12px; transition: 0.3s; cursor: pointer; border: none; text-align: left; color: var(--text); }
+        .card:hover, .card:focus-visible { background: #282828; transform: translateY(-5px); outline: none; }
+        .card img { width: 100%; aspect-ratio: 1/1; border-radius: 8px; object-fit: cover; margin-bottom: 10px; background: var(--surface-2); }
         .card h3 { font-size: 14px; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
         .card p { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
 
+        .state-msg { grid-column: 1/-1; text-align: center; padding: 30px 10px; color: var(--text-dim); font-size: 13px; }
+        .state-msg.error { color: var(--accent-2); }
+        .state-msg a { color: var(--accent); cursor: pointer; }
+
         /* MINI PLAYER */
-        .player { 
-            position: fixed; bottom: 85px; left: 10px; right: 10px; 
-            background: rgba(40, 40, 40, 0.7); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 10px 15px; z-index: 1500; cursor: pointer; 
+        .player {
+            position: fixed; bottom: 85px; left: 10px; right: 10px;
+            background: rgba(30, 30, 30, 0.75); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 10px 15px; z-index: 1500; cursor: pointer;
         }
         .player-content { display: flex; align-items: center; justify-content: space-between; }
         .track-info { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
@@ -78,30 +86,32 @@
         .track-text { overflow: hidden; }
         .track-text h4 { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .track-text p { font-size: 11px; color: var(--text-dim); }
-        
+
         .viz-container { display: flex; align-items: flex-end; gap: 2px; height: 20px; margin-right: 15px; }
         .v-bar { width: 3px; background: var(--accent); height: 20%; border-radius: 2px; }
         .playing .v-bar { animation: realize 0.8s ease-in-out infinite alternate; }
         @keyframes realize { 0% { height: 20%; opacity: 0.5; } 100% { height: 100%; opacity: 1; } }
 
-        .play-pause { width: 38px; height: 38px; background: white; color: black; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .play-pause { width: 38px; height: 38px; background: white; color: black; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; }
         .progress-container { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 5px; margin-top: 10px; cursor: pointer; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: 0.1s linear; }
 
         /* FULL OVERLAY */
         .player-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #333, #000); z-index: 3000; display: flex; flex-direction: column; padding: 50px 30px; transform: translateY(100%); transition: transform 0.5s cubic-bezier(0.3, 0, 0.2, 1); }
         .player-overlay.active { transform: translateY(0); }
-        .player-overlay.playing { background: radial-gradient(circle at center, #1a3a2a 0%, #000 80%); }
-        .overlay-header { display: flex; justify-content: space-between; margin-bottom: 30px; }
-        .overlay-art { width: 100%; aspect-ratio: 1/1; border-radius: 15px; object-fit: cover; margin-bottom: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transition: 0.5s; }
-        .overlay-art.playing { box-shadow: 0 0 50px rgba(30, 215, 96, 0.4); transform: scale(1.02); }
+        .player-overlay.playing { background: radial-gradient(circle at center, #3a1f0f 0%, #000 80%); }
+        .overlay-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .overlay-header button { background: none; border: none; color: var(--text); cursor: pointer; }
+        .overlay-art { width: 100%; aspect-ratio: 1/1; border-radius: 15px; object-fit: cover; margin-bottom: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); transition: 0.5s; background: var(--surface-2); }
+        .overlay-art.playing { box-shadow: 0 0 50px rgba(255, 69, 0, 0.4); transform: scale(1.02); }
         .controls-big { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; }
-        .play-btn-big { width: 70px; height: 70px; background: white; color: black; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+        .controls-big button { background: none; border: none; color: var(--text); font-size: 20px; cursor: pointer; }
+        .play-btn-big { width: 70px; height: 70px; background: white; color: black; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; border: none; cursor: pointer; }
 
         @media (min-width: 1024px) {
             body { flex-direction: row; }
-            .bottom-nav { width: var(--sidebar-w); height: 100vh; position: sticky; flex-direction: column; justify-content: flex-start; padding: 40px 20px; border-right: 1px solid #1a1a1a; border-top: none; }
-            .nav-link { flex-direction: row; font-size: 16px; padding: 12px; width: 100%; border-radius: 8px; gap: 15px; }
+            .bottom-nav { width: var(--sidebar-w); height: 100vh; position: sticky; top:0; flex-direction: column; justify-content: flex-start; padding: 40px 20px; border-right: 1px solid #1a1a1a; border-top: none; }
+            .nav-link { flex-direction: row; font-size: 16px; padding: 12px; width: 100%; border-radius: 8px; gap: 15px; justify-content: flex-start; }
             .viewport { padding: 0 40px 120px; flex: 1; }
             .music-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 25px; }
             .player { left: calc(var(--sidebar-w) + 20px); right: 20px; bottom: 20px; }
@@ -111,30 +121,30 @@
 <body>
 
 <nav class="bottom-nav">
-    <div class="nav-link active"><i class="fa-solid fa-house"></i> Home</div>
-    <div class="nav-link" onclick="document.getElementById('q').focus()"><i class="fa-solid fa-magnifying-glass"></i> Search</div>
-    <div class="nav-link"><i class="fa-solid fa-layer-group"></i> Library</div>
+    <button class="nav-link active"><i class="fa-solid fa-house"></i> Home</button>
+    <button class="nav-link" onclick="document.getElementById('q').focus()"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+    <button class="nav-link"><i class="fa-solid fa-layer-group"></i> Library</button>
 </nav>
 
 <div class="viewport">
     <div class="top-nav">
-        <h1 id="greeting">Welcome!, Aloy🤘</h1>
+        <h1 id="greeting">Welcome!</h1>
         <div class="search-container">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" id="q" placeholder="Search elite sounds..." onkeypress="if(event.key==='Enter') fetchMusic(this.value)">
         </div>
         <div class="chip-row">
-            <div class="chip active" onclick="selectChip(this, 'Trending OPM 2026')">Trending</div>
-            <div class="chip" onclick="selectChip(this, 'Rock Classics')">Rock</div>
-            <div class="chip" onclick="selectChip(this, 'Chill HipHop')">HipHop</div>
-            <div class="chip" onclick="selectChip(this, '80s 90s Hits')">Classic</div>
+            <button class="chip active" onclick="selectChip(this, 'Trending OPM 2026')">Trending</button>
+            <button class="chip" onclick="selectChip(this, 'Rock Classics')">Rock</button>
+            <button class="chip" onclick="selectChip(this, 'Chill HipHop')">HipHop</button>
+            <button class="chip" onclick="selectChip(this, '80s 90s Hits')">Classic</button>
         </div>
     </div>
 
     <div class="section">
         <div class="section-head">
             <h2>Made For You</h2>
-            <div class="see-all" id="btn-grid" onclick="toggleView('grid')">See All</div>
+            <button class="see-all" id="btn-grid" onclick="toggleView('grid')">See All</button>
         </div>
         <div id="grid" class="music-grid"></div>
     </div>
@@ -142,21 +152,21 @@
     <div class="section">
         <div class="section-head">
             <h2>Elite Podcasts</h2>
-            <div class="see-all" id="btn-podcast-grid" onclick="toggleView('podcast-grid')">See All</div>
+            <button class="see-all" id="btn-podcast-grid" onclick="toggleView('podcast-grid')">See All</button>
         </div>
         <div id="podcast-grid" class="music-grid"></div>
     </div>
 
     <footer style="padding: 60px 20px 100px; text-align: center; border-top: 1px solid #1a1a1a; margin-top: 50px;">
         <div style="font-size: 24px; font-weight: 900; color: var(--accent); letter-spacing: 5px; margin-bottom: 10px;">SE7EN</div>
-        <p style="font-size: 11px; color: #444;">Crafted for the Elite Music Lovers • 2026</p>
+        <p style="font-size: 11px; color: #444;">Crafted for the Elite Music Lovers &bull; 2026</p>
     </footer>
 </div>
 
 <div class="player" onclick="openFullPlayer()">
     <div class="player-content">
         <div class="track-info">
-            <img id="cur-thumb" src="https://ui-avatars.com/api/?name=S&background=1DB954&color=fff">
+            <img id="cur-thumb" src="https://ui-avatars.com/api/?name=S&background=ff4500&color=fff" alt="">
             <div class="track-text">
                 <h4 id="cur-title">No music selected</h4>
                 <p id="cur-artist">Tap a song to play</p>
@@ -166,9 +176,9 @@
             <div class="viz-container" id="viz">
                 <div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div><div class="v-bar"></div>
             </div>
-            <div class="play-pause" onclick="event.stopPropagation(); togglePlay()">
+            <button class="play-pause" onclick="event.stopPropagation(); togglePlay()" aria-label="Play or pause">
                 <i class="fa-solid fa-play" id="pp-icon"></i>
-            </div>
+            </button>
         </div>
     </div>
     <div class="progress-container" onclick="event.stopPropagation(); seek(event, this)">
@@ -178,11 +188,11 @@
 
 <div class="player-overlay" id="fullPlayer">
     <div class="overlay-header">
-        <i class="fa-solid fa-chevron-down" onclick="closeFullPlayer()" style="font-size: 24px;"></i>
+        <button onclick="closeFullPlayer()" aria-label="Close"><i class="fa-solid fa-chevron-down" style="font-size: 24px;"></i></button>
         <span style="font-weight: 800; font-size: 12px;">NOW PLAYING</span>
-        <i class="fa-solid fa-ellipsis-vertical" style="font-size: 24px;"></i>
+        <button aria-label="More options"><i class="fa-solid fa-ellipsis-vertical" style="font-size: 24px;"></i></button>
     </div>
-    <img id="full-art" class="overlay-art" src="">
+    <img id="full-art" class="overlay-art" src="" alt="">
     <div class="overlay-info">
         <h2 id="full-title">Song Title</h2>
         <p id="full-artist">Artist Name</p>
@@ -196,9 +206,9 @@
     </div>
     <div class="controls-big">
         <i class="fa-solid fa-shuffle" style="color: var(--accent);"></i>
-        <i class="fa-solid fa-backward-step" onclick="playPrev()"></i>
-        <div class="play-btn-big" onclick="togglePlay()"><i class="fa-solid fa-play" id="pp-icon-full"></i></div>
-        <i class="fa-solid fa-forward-step" onclick="playNext()"></i>
+        <button onclick="playPrev()" aria-label="Previous"><i class="fa-solid fa-backward-step"></i></button>
+        <button class="play-btn-big" onclick="togglePlay()" aria-label="Play or pause"><i class="fa-solid fa-play" id="pp-icon-full"></i></button>
+        <button onclick="playNext()" aria-label="Next"><i class="fa-solid fa-forward-step"></i></button>
         <i class="fa-solid fa-repeat"></i>
     </div>
 </div>
@@ -207,154 +217,231 @@
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
-    let p;
-    let musicData = { grid: [], 'podcast-grid': [] };
-    let showingAll = { grid: false, 'podcast-grid': false };
-    let currentIdx = 0;
-    let currentList = 'grid';
+"use strict";
 
-    const RAPID_KEY = '4e8edee1c8mshc6c52eb315c1a04p1ec8b0jsn992eddb8a559';
-    const RAPID_HOST = 'youtube-data-api-v33.p.rapidapi.com';
+let p;
+let musicData = { grid: [], 'podcast-grid': [] };
+let showingAll = { grid: false, 'podcast-grid': false };
+let currentIdx = 0;
+let currentList = 'grid';
+let progressTimer = null;
 
-    // LOCKSCREEN & NOTIFICATION CONTROLS
-    function updateMediaSession() {
-        if ('mediaSession' in navigator) {
-            navigator.mediaSession.metadata = new MediaMetadata({
-                title: document.getElementById('cur-title').innerText,
-                artist: document.getElementById('cur-artist').innerText,
-                artwork: [{ src: document.getElementById('cur-thumb').src, sizes: '512x512', type: 'image/png' }]
-            });
-            navigator.mediaSession.setActionHandler('play', () => p.playVideo());
-            navigator.mediaSession.setActionHandler('pause', () => p.pauseVideo());
-            navigator.mediaSession.setActionHandler('previoustrack', () => playPrev());
-            navigator.mediaSession.setActionHandler('nexttrack', () => playNext());
-        }
+// SECURITY NOTE: this key is visible to anyone who views the page source,
+// since it's used directly from client-side JS. Anyone can copy it and burn
+// through your RapidAPI quota (or run up billing on a paid plan). There is
+// no way to fully hide a key in a static HTML page -- the real fix is to
+// route this call through your own backend/serverless function so the key
+// never reaches the browser. Until then, monitor usage on your RapidAPI
+// dashboard and rotate the key periodically.
+const RAPID_KEY = '4e8edee1c8mshc6c52eb315c1a04p1ec8b0jsn992eddb8a559';
+const RAPID_HOST = 'youtube-data-api-v33.p.rapidapi.com';
+
+function escapeHTML(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// LOCKSCREEN & NOTIFICATION CONTROLS
+function updateMediaSession() {
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: document.getElementById('cur-title').innerText,
+            artist: document.getElementById('cur-artist').innerText,
+            artwork: [{ src: document.getElementById('cur-thumb').src, sizes: '512x512', type: 'image/png' }]
+        });
+        navigator.mediaSession.setActionHandler('play', () => p.playVideo());
+        navigator.mediaSession.setActionHandler('pause', () => p.pauseVideo());
+        navigator.mediaSession.setActionHandler('previoustrack', () => playPrev());
+        navigator.mediaSession.setActionHandler('nexttrack', () => playNext());
     }
+}
 
-    async function fetchMusic(query) {
-        const grid = document.getElementById('grid');
-        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--accent);">Elite Loading...</p>';
-        
-        const cached = localStorage.getItem('search_' + query);
-        if (cached) {
+async function fetchMusic(query) {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '<p class="state-msg">Elite Loading...</p>';
+
+    const cacheKey = 'search_' + query;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+        try {
             musicData.grid = JSON.parse(cached);
             render('grid');
-        }
-
-        try {
-            const res = await fetch(`https://${RAPID_HOST}/search?q=${encodeURIComponent(query)}&part=snippet&type=video&maxResults=15`, {
-                headers: { 'x-rapidapi-key': RAPID_KEY, 'x-rapidapi-host': RAPID_HOST }
-            });
-            const data = await res.json();
-            musicData.grid = data.items || [];
-            localStorage.setItem('search_' + query, JSON.stringify(musicData.grid));
-            render('grid');
-        } catch (e) { console.error(e); }
+        } catch (e) { /* ignore corrupt cache */ }
     }
 
-    async function fetchPodcasts() {
-        try {
-            const res = await fetch(`https://${RAPID_HOST}/search?q=Latest%20Pinoy%20Podcast&part=snippet&type=video&maxResults=10`, {
-                headers: { 'x-rapidapi-key': RAPID_KEY, 'x-rapidapi-host': RAPID_HOST }
-            });
-            const data = await res.json();
-            musicData['podcast-grid'] = data.items || [];
-            render('podcast-grid');
-        } catch (e) {}
-    }
-
-    function render(targetId) {
-        const target = document.getElementById(targetId);
-        const btn = document.getElementById('btn-' + targetId);
-        const items = showingAll[targetId] ? musicData[targetId] : musicData[targetId].slice(0, 6);
-        if(btn) btn.innerText = showingAll[targetId] ? "Show Less" : "See All";
-        target.innerHTML = items.map((item, idx) => `
-            <div class="card" onclick="playTrack('${item.id.videoId}', '${item.snippet.title.replace(/'/g, "")}', '${item.snippet.thumbnails.high.url}', '${item.snippet.channelTitle.replace(/'/g, "")}', ${idx}, '${targetId}')">
-                <img src="${item.snippet.thumbnails.high.url}">
-                <h3>${item.snippet.title}</h3>
-                <p>${item.snippet.channelTitle}</p>
-            </div>
-        `).join('');
-    }
-
-    function onYouTubeIframeAPIReady() {
-        p = new YT.Player('yt-engine', {
-            events: {
-                'onStateChange': (e) => {
-                    const isPlaying = (e.data == 1);
-                    document.getElementById('pp-icon').className = isPlaying ? "fa-solid fa-pause" : "fa-solid fa-play";
-                    document.getElementById('pp-icon-full').className = isPlaying ? "fa-solid fa-pause" : "fa-solid fa-play";
-                    
-                    if(isPlaying) {
-                        document.getElementById('viz').classList.add('playing');
-                        document.getElementById('full-art').classList.add('playing');
-                        document.getElementById('fullPlayer').classList.add('playing');
-                        updateBar();
-                        updateMediaSession();
-                    } else {
-                        document.getElementById('viz').classList.remove('playing');
-                    }
-                    if(e.data == 0) playNext();
-                }
-            }
+    try {
+        const res = await fetch(`https://${RAPID_HOST}/search?q=${encodeURIComponent(query)}&part=snippet&type=video&maxResults=15`, {
+            headers: { 'x-rapidapi-key': RAPID_KEY, 'x-rapidapi-host': RAPID_HOST }
         });
-    }
-
-    function playTrack(id, title, thumb, artist, idx, listId) {
-        currentIdx = idx; currentList = listId;
-        document.getElementById('cur-thumb').src = thumb;
-        document.getElementById('cur-title').innerText = title;
-        document.getElementById('cur-artist').innerText = artist;
-        document.getElementById('full-art').src = thumb;
-        document.getElementById('full-title').innerText = title;
-        document.getElementById('full-artist').innerText = artist;
-        p.loadVideoById(id);
-    }
-
-    function togglePlay() { if(p) p.getPlayerState() == 1 ? p.pauseVideo() : p.playVideo(); }
-    function playNext() {
-        let list = musicData[currentList];
-        if(currentIdx < list.length - 1) {
-            let next = list[++currentIdx];
-            playTrack(next.id.videoId, next.snippet.title, next.snippet.thumbnails.high.url, next.snippet.channelTitle, currentIdx, currentList);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        musicData.grid = data.items || [];
+        localStorage.setItem(cacheKey, JSON.stringify(musicData.grid));
+        render('grid');
+    } catch (e) {
+        console.error(e);
+        if (!musicData.grid.length) {
+            grid.innerHTML = `<p class="state-msg error">Couldn't load results right now. <a onclick="fetchMusic('${escapeHTML(query)}')">Retry</a></p>`;
         }
     }
-    function playPrev() {
-        if(currentIdx > 0) {
-            let prev = musicData[currentList][--currentIdx];
-            playTrack(prev.id.videoId, prev.snippet.title, prev.snippet.thumbnails.high.url, prev.snippet.channelTitle, currentIdx, currentList);
-        }
-    }
-    function seek(e, el) { const rect = el.getBoundingClientRect(); p.seekTo(((e.clientX - rect.left) / rect.width) * p.getDuration()); }
-    function openFullPlayer() { document.getElementById('fullPlayer').classList.add('active'); }
-    function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('active'); }
-    function selectChip(el, q) { document.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); fetchMusic(q); }
+}
 
-    function updateBar() {
-        const timer = setInterval(() => {
-            if(p && p.getCurrentTime && p.getPlayerState() == 1) {
-                const cur = p.getCurrentTime(), dur = p.getDuration(), perc = (cur / dur) * 100;
+async function fetchPodcasts() {
+    const grid = document.getElementById('podcast-grid');
+    grid.innerHTML = '<p class="state-msg">Loading podcasts...</p>';
+    try {
+        const res = await fetch(`https://${RAPID_HOST}/search?q=Latest%20Pinoy%20Podcast&part=snippet&type=video&maxResults=10`, {
+            headers: { 'x-rapidapi-key': RAPID_KEY, 'x-rapidapi-host': RAPID_HOST }
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        musicData['podcast-grid'] = data.items || [];
+        render('podcast-grid');
+    } catch (e) {
+        console.error(e);
+        grid.innerHTML = `<p class="state-msg error">Couldn't load podcasts right now. <a onclick="fetchPodcasts()">Retry</a></p>`;
+    }
+}
+
+function render(targetId) {
+    const target = document.getElementById(targetId);
+    const btn = document.getElementById('btn-' + targetId);
+    const fullList = musicData[targetId] || [];
+    const items = showingAll[targetId] ? fullList : fullList.slice(0, 6);
+
+    if (btn) btn.innerText = showingAll[targetId] ? "Show Less" : "See All";
+
+    if (!items.length) {
+        target.innerHTML = '<p class="state-msg">No results found.</p>';
+        return;
+    }
+
+    target.innerHTML = "";
+    items.forEach((item, idx) => {
+        const title = item.snippet.title;
+        const artist = item.snippet.channelTitle;
+        const thumb = item.snippet.thumbnails.high.url;
+        const videoId = item.id.videoId;
+
+        const card = document.createElement('button');
+        card.className = 'card';
+        card.innerHTML = `
+            <img src="${escapeHTML(thumb)}" alt="">
+            <h3>${escapeHTML(title)}</h3>
+            <p>${escapeHTML(artist)}</p>
+        `;
+        // Bound as a real listener (not an inline string) so titles with
+        // quotes or special characters can never break the markup or JS.
+        card.addEventListener('click', () => playTrack(videoId, title, thumb, artist, idx, targetId));
+        target.appendChild(card);
+    });
+}
+
+function onYouTubeIframeAPIReady() {
+    p = new YT.Player('yt-engine', {
+        events: {
+            'onStateChange': (e) => {
+                const isPlaying = (e.data == 1);
+                document.getElementById('pp-icon').className = isPlaying ? "fa-solid fa-pause" : "fa-solid fa-play";
+                document.getElementById('pp-icon-full').className = isPlaying ? "fa-solid fa-pause" : "fa-solid fa-play";
+
+                if (isPlaying) {
+                    document.getElementById('viz').classList.add('playing');
+                    document.getElementById('full-art').classList.add('playing');
+                    document.getElementById('fullPlayer').classList.add('playing');
+                    startProgressTimer();
+                    updateMediaSession();
+                } else {
+                    document.getElementById('viz').classList.remove('playing');
+                }
+                if (e.data == 0) playNext();
+            }
+        }
+    });
+}
+
+function playTrack(id, title, thumb, artist, idx, listId) {
+    currentIdx = idx; currentList = listId;
+    document.getElementById('cur-thumb').src = thumb;
+    document.getElementById('cur-title').innerText = title;
+    document.getElementById('cur-artist').innerText = artist;
+    document.getElementById('full-art').src = thumb;
+    document.getElementById('full-title').innerText = title;
+    document.getElementById('full-artist').innerText = artist;
+    p.loadVideoById(id);
+}
+
+function togglePlay() { if (p) p.getPlayerState() == 1 ? p.pauseVideo() : p.playVideo(); }
+
+function playNext() {
+    let list = musicData[currentList];
+    if (currentIdx < list.length - 1) {
+        let next = list[++currentIdx];
+        playTrack(next.id.videoId, next.snippet.title, next.snippet.thumbnails.high.url, next.snippet.channelTitle, currentIdx, currentList);
+    }
+}
+function playPrev() {
+    if (currentIdx > 0) {
+        let prev = musicData[currentList][--currentIdx];
+        playTrack(prev.id.videoId, prev.snippet.title, prev.snippet.thumbnails.high.url, prev.snippet.channelTitle, currentIdx, currentList);
+    }
+}
+function seek(e, el) {
+    if (!p || !p.getDuration) return;
+    const rect = el.getBoundingClientRect();
+    p.seekTo(((e.clientX - rect.left) / rect.width) * p.getDuration());
+}
+function openFullPlayer() { document.getElementById('fullPlayer').classList.add('active'); }
+function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('active'); }
+function selectChip(el, q) {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    fetchMusic(q);
+}
+function toggleView(id) {
+    showingAll[id] = !showingAll[id];
+    render(id);
+}
+
+// Single tracked interval instead of spawning a new one on every play
+// event -- rapid pause/resume used to be able to stack multiple timers
+// updating the same bar at once.
+function startProgressTimer() {
+    if (progressTimer) clearInterval(progressTimer);
+    progressTimer = setInterval(() => {
+        if (p && p.getCurrentTime && p.getPlayerState() == 1) {
+            const cur = p.getCurrentTime(), dur = p.getDuration();
+            if (dur > 0) {
+                const perc = (cur / dur) * 100;
                 document.getElementById('p-bar').style.width = perc + "%";
                 document.getElementById('p-bar-full').style.width = perc + "%";
-                let m = Math.floor(cur/60), s = Math.floor(cur%60);
+                let m = Math.floor(cur / 60), s = Math.floor(cur % 60);
                 document.getElementById('time-cur').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-                let tm = Math.floor(dur/60), ts = Math.floor(dur%60);
+                let tm = Math.floor(dur / 60), ts = Math.floor(dur % 60);
                 document.getElementById('time-total').innerText = `${tm}:${ts < 10 ? '0' : ''}${ts}`;
-            } else clearInterval(timer);
-        }, 1000);
-    }
+            }
+        } else {
+            clearInterval(progressTimer);
+            progressTimer = null;
+        }
+    }, 1000);
+}
 
-    window.onload = () => {
-        const now = new Date();
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        const dateString = now.toLocaleDateString('en-US', options);
-        const hour = now.getHours();
-        const greet = document.getElementById('greeting');
-        let timeGreet = hour < 12 ? "Maayong Buntag" : hour < 18 ? "Maayong Hapon" : "Maayong Gabii";
-        greet.innerHTML = `${timeGreet}, Aloy! 🤘 <br> <span style="font-size: 13px; color: var(--text-dim); font-weight: 400;">${dateString}</span>`;
-        fetchMusic('OPM Trending 2026');
-        fetchPodcasts();
-    };
+window.onload = () => {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const dateString = now.toLocaleDateString('en-US', options);
+    const hour = now.getHours();
+    const greet = document.getElementById('greeting');
+    let timeGreet = hour < 12 ? "Maayong Buntag" : hour < 18 ? "Maayong Hapon" : "Maayong Gabii";
+    greet.innerHTML = `${timeGreet}! 🤘 <br> <span style="font-size: 13px; color: var(--text-dim); font-weight: 400;">${dateString}</span>`;
+    fetchMusic('OPM Trending 2026');
+    fetchPodcasts();
+};
 </script>
 </body>
 </html>
