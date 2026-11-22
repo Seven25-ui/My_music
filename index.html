@@ -70,6 +70,10 @@
         .card h3 { font-size: 14px; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
         .card p { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
 
+        /* SKELETON LOADER */
+        .skeleton { background: linear-gradient(90deg, #1c1c1c 25%, #2a2a2a 50%, #1c1c1c 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 12px; height: 220px; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
         .state-msg { grid-column: 1/-1; text-align: center; padding: 30px 10px; color: var(--text-dim); font-size: 13px; }
         .state-msg.error { color: var(--accent-2); }
         .state-msg a { color: var(--accent); cursor: pointer; }
@@ -107,6 +111,16 @@
         .controls-big { display: flex; justify-content: space-between; align-items: center; margin-top: 40px; }
         .controls-big button { background: none; border: none; color: var(--text); font-size: 20px; cursor: pointer; }
         .play-btn-big { width: 70px; height: 70px; background: white; color: black; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; border: none; cursor: pointer; }
+
+        /* VOLUME SLIDER */
+        .volume-container { display: flex; align-items: center; gap: 10px; margin-top: 20px; justify-content: center; }
+        .volume-container i { color: var(--text-dim); font-size: 14px; }
+        input[type=range] { -webkit-appearance: none; width: 120px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; outline: none; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: white; border-radius: 50%; cursor: pointer; }
+
+        /* TOAST NOTIFICATION */
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent); color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; z-index: 9999; transition: transform 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .toast.show { transform: translateX(-50%) translateY(0); }
 
         @media (min-width: 1024px) {
             body { flex-direction: row; }
@@ -211,11 +225,19 @@
         <button onclick="playNext()" aria-label="Next"><i class="fa-solid fa-forward-step"></i></button>
         <i class="fa-solid fa-repeat"></i>
     </div>
+    
+    <!-- VOLUME CONTROL -->
+    <div class="volume-container">
+        <i class="fa-solid fa-volume-low"></i>
+        <input type="range" id="volume-slider" min="0" max="100" value="100" oninput="changeVolume(this.value)">
+        <i class="fa-solid fa-volume-high"></i>
+    </div>
 </div>
 
 <div id="yt-engine" style="display:none;"></div>
-<script src="https://www.youtube.com/iframe_api"></script>
+<div id="toast" class="toast">Error loading data</div>
 
+<script src="https://www.youtube.com/iframe_api"></script>
 <script>
 "use strict";
 
@@ -226,32 +248,29 @@ let currentIdx = 0;
 let currentList = 'grid';
 let progressTimer = null;
 
-// SECURITY NOTE: this key is visible to anyone who views the page source,
-// since it's used directly from client-side JS. Anyone can copy it and burn
-// through your RapidAPI quota (or run up billing on a paid plan). There is
-// no way to fully hide a key in a static HTML page -- the real fix is to
-// route this call through your own backend/serverless function so the key
-// never reaches the browser. Until then, monitor usage on your RapidAPI
-// dashboard and rotate the key periodically.
-const RAPID_KEY = '4e8edee1c8mshc6c52eb315c1a04p1ec8b0jsn992eddb8a559';
-const RAPID_HOST = 'youtube-data-api-v33.p.rapidapi.com';
+// 🔥 IMPORTANTE: Ilisi kini sa URL sa imong Cloudflare Worker
+const WORKER_URL = 'https://YOUR_WORKER_URL.workers.dev'; 
 
 function escapeHTML(value) {
     return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
-// LOCKSCREEN & NOTIFICATION CONTROLS
-function updateMediaSession() {
+function showToast(msg) {
+    const toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// DYNAMIC MEDIA SESSION (Mo-update inig-change sa kanta)
+function updateMediaSession(title, artist, thumb) {
     if ('mediaSession' in navigator) {
         navigator.mediaSession.metadata = new MediaMetadata({
-            title: document.getElementById('cur-title').innerText,
-            artist: document.getElementById('cur-artist').innerText,
-            artwork: [{ src: document.getElementById('cur-thumb').src, sizes: '512x512', type: 'image/png' }]
+            title: title,
+            artist: artist,
+            artwork: [{ src: thumb, sizes: '512x512', type: 'image/png' }]
         });
         navigator.mediaSession.setActionHandler('play', () => p.playVideo());
         navigator.mediaSession.setActionHandler('pause', () => p.pauseVideo());
@@ -262,7 +281,7 @@ function updateMediaSession() {
 
 async function fetchMusic(query) {
     const grid = document.getElementById('grid');
-    grid.innerHTML = '<p class="state-msg">Elite Loading...</p>';
+    grid.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
 
     const cacheKey = 'search_' + query;
     const cached = localStorage.getItem(cacheKey);
@@ -270,40 +289,43 @@ async function fetchMusic(query) {
         try {
             musicData.grid = JSON.parse(cached);
             render('grid');
-        } catch (e) { /* ignore corrupt cache */ }
+        } catch (e) { /* ignore */ }
     }
 
     try {
-        const res = await fetch(`https://${RAPID_HOST}/search?q=${encodeURIComponent(query)}&part=snippet&type=video&maxResults=15`, {
-            headers: { 'x-rapidapi-key': RAPID_KEY, 'x-rapidapi-host': RAPID_HOST }
-        });
+        // Fetch gikan sa imong Cloudflare Worker (Secure)
+        const res = await fetch(`${WORKER_URL}?q=${encodeURIComponent(query)}`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
+        
+        if (data.error) throw new Error(data.error);
+
         musicData.grid = data.items || [];
         localStorage.setItem(cacheKey, JSON.stringify(musicData.grid));
         render('grid');
     } catch (e) {
         console.error(e);
         if (!musicData.grid.length) {
-            grid.innerHTML = `<p class="state-msg error">Couldn't load results right now. <a onclick="fetchMusic('${escapeHTML(query)}')">Retry</a></p>`;
+            grid.innerHTML = `<p class="state-msg error">Couldn't load results. <a onclick="fetchMusic('${escapeHTML(query)}')">Retry</a></p>`;
         }
     }
 }
 
 async function fetchPodcasts() {
     const grid = document.getElementById('podcast-grid');
-    grid.innerHTML = '<p class="state-msg">Loading podcasts...</p>';
+    grid.innerHTML = '<div class="skeleton"></div><div class="skeleton"></div>';
     try {
-        const res = await fetch(`https://${RAPID_HOST}/search?q=Latest%20Pinoy%20Podcast&part=snippet&type=video&maxResults=10`, {
-            headers: { 'x-rapidapi-key': RAPID_KEY, 'x-rapidapi-host': RAPID_HOST }
-        });
+        const res = await fetch(`${WORKER_URL}?q=Latest%20Pinoy%20Podcast`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
+        
+        if (data.error) throw new Error(data.error);
+        
         musicData['podcast-grid'] = data.items || [];
         render('podcast-grid');
     } catch (e) {
         console.error(e);
-        grid.innerHTML = `<p class="state-msg error">Couldn't load podcasts right now. <a onclick="fetchPodcasts()">Retry</a></p>`;
+        grid.innerHTML = `<p class="state-msg error">Couldn't load podcasts. <a onclick="fetchPodcasts()">Retry</a></p>`;
     }
 }
 
@@ -334,8 +356,6 @@ function render(targetId) {
             <h3>${escapeHTML(title)}</h3>
             <p>${escapeHTML(artist)}</p>
         `;
-        // Bound as a real listener (not an inline string) so titles with
-        // quotes or special characters can never break the markup or JS.
         card.addEventListener('click', () => playTrack(videoId, title, thumb, artist, idx, targetId));
         target.appendChild(card);
     });
@@ -354,7 +374,6 @@ function onYouTubeIframeAPIReady() {
                     document.getElementById('full-art').classList.add('playing');
                     document.getElementById('fullPlayer').classList.add('playing');
                     startProgressTimer();
-                    updateMediaSession();
                 } else {
                     document.getElementById('viz').classList.remove('playing');
                 }
@@ -372,6 +391,10 @@ function playTrack(id, title, thumb, artist, idx, listId) {
     document.getElementById('full-art').src = thumb;
     document.getElementById('full-title').innerText = title;
     document.getElementById('full-artist').innerText = artist;
+    
+    // Update lock screen
+    updateMediaSession(title, artist, thumb);
+    
     p.loadVideoById(id);
 }
 
@@ -390,26 +413,31 @@ function playPrev() {
         playTrack(prev.id.videoId, prev.snippet.title, prev.snippet.thumbnails.high.url, prev.snippet.channelTitle, currentIdx, currentList);
     }
 }
+
+function changeVolume(val) {
+    if (p && p.setVolume) p.setVolume(val);
+}
+
 function seek(e, el) {
     if (!p || !p.getDuration) return;
     const rect = el.getBoundingClientRect();
-    p.seekTo(((e.clientX - rect.left) / rect.width) * p.getDuration());
+    const perc = (e.clientX - rect.left) / rect.width;
+    p.seekTo(perc * p.getDuration());
 }
 function openFullPlayer() { document.getElementById('fullPlayer').classList.add('active'); }
 function closeFullPlayer() { document.getElementById('fullPlayer').classList.remove('active'); }
+
 function selectChip(el, q) {
     document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
     fetchMusic(q);
 }
+
 function toggleView(id) {
     showingAll[id] = !showingAll[id];
     render(id);
 }
 
-// Single tracked interval instead of spawning a new one on every play
-// event -- rapid pause/resume used to be able to stack multiple timers
-// updating the same bar at once.
 function startProgressTimer() {
     if (progressTimer) clearInterval(progressTimer);
     progressTimer = setInterval(() => {
@@ -439,6 +467,7 @@ window.onload = () => {
     const greet = document.getElementById('greeting');
     let timeGreet = hour < 12 ? "Maayong Buntag" : hour < 18 ? "Maayong Hapon" : "Maayong Gabii";
     greet.innerHTML = `${timeGreet}! 🤘 <br> <span style="font-size: 13px; color: var(--text-dim); font-weight: 400;">${dateString}</span>`;
+    
     fetchMusic('OPM Trending 2026');
     fetchPodcasts();
 };
